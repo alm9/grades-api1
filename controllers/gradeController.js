@@ -74,7 +74,7 @@ const update = async (req, res) => {
     const data = await Grade.findByIdAndUpdate({ _id: id }, req.body);
 
     if (!data) {
-      res.send(`Podcast id ${id} nao encontrado`);
+      res.send(`Grade id ${id} nao encontrado`);
     } else {
       res.send({ message: 'Grade atualizado com sucesso' });
     }
@@ -90,7 +90,13 @@ const remove = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send({ message: 'Grade excluido com sucesso' });
+    const data = await Grade.findByIdAndRemove({ _id: id });
+
+    if (!data) {
+      res.send(`Grade id ${id} nao encontrado`);
+    } else {
+      res.send({ message: 'Grade excluido com sucesso' });
+    }
 
     logger.info(`DELETE /grade - ${id}`);
   } catch (error) {
@@ -102,15 +108,18 @@ const remove = async (req, res) => {
 };
 
 const removeAll = async (req, res) => {
-  const id = req.params.id;
+  // const id = req.params.id;
 
   try {
+    const data = await Grade.remove({});
+
     res.send({
-      message: `Grades excluidos`,
+      message: `Todos os documentos da coleção foram apagados`,
     });
+
     logger.info(`DELETE /grade`);
   } catch (error) {
-    res.status(500).send({ message: 'Erro ao excluir todos as Grades' });
+    res.status(500).send({ message: 'Erro ao excluir todos os documentos' });
     logger.error(`DELETE /grade - ${JSON.stringify(error.message)}`);
   }
 };
