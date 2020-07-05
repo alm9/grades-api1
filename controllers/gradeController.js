@@ -1,10 +1,21 @@
 import { db } from '../models/index.js';
 import { logger } from '../config/logger.js';
 
+const Grade = db.grade;
+
 const create = async (req, res) => {
+  const grade = new Grade({
+    name: req.body.name,
+    subject: req.body.subject,
+    type: req.body.type,
+    value: req.body.value,
+    lastModified: req.body.lastModified,
+  });
   try {
-    res.send();
-    logger.info(`POST /grade - ${JSON.stringify()}`);
+    const data = await grade.save(grade);
+
+    res.send(data);
+    logger.info(`POST /grade - ${JSON.stringify(data)}`);
   } catch (error) {
     res
       .status(500)
@@ -14,7 +25,7 @@ const create = async (req, res) => {
 };
 
 const findAll = async (req, res) => {
-  const name = req.query.name;
+  const name = req.query.name; //req.query = após '?'
 
   //condicao para o filtro no findAll
   var condition = name
@@ -22,7 +33,8 @@ const findAll = async (req, res) => {
     : {};
 
   try {
-    res.send();
+    const data = await Grade.find(condition);
+    res.send(data);
     logger.info(`GET /grade`);
   } catch (error) {
     res
@@ -36,11 +48,15 @@ const findOne = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send();
+    const data = await Grade.findById({ _id: id });
+
+    res.send(data);
 
     logger.info(`GET /grade - ${id}`);
   } catch (error) {
-    res.status(500).send({ message: 'Erro ao buscar o Grade id: ' + id });
+    res.status(500).send({
+      message: 'Erro ao buscar o Grade id: ' + id,
+    });
     logger.error(`GET /grade - ${JSON.stringify(error.message)}`);
   }
 };
@@ -55,7 +71,13 @@ const update = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send({ message: 'Grade atualizado com sucesso' });
+    const data = await Grade.findByIdAndUpdate({ _id: id }, req.body);
+
+    if (!data) {
+      res.send(`Grade id ${id} nao encontrado`);
+    } else {
+      res.send({ message: 'Grade atualizado com sucesso' });
+    }
 
     logger.info(`PUT /grade - ${id} - ${JSON.stringify(req.body)}`);
   } catch (error) {
@@ -68,7 +90,13 @@ const remove = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send({ message: 'Grade excluido com sucesso' });
+    const data = await Grade.findByIdAndRemove({ _id: id });
+
+    if (!data) {
+      res.send(`Grade id ${id} nao encontrado`);
+    } else {
+      res.send({ message: 'Grade excluido com sucesso' });
+    }
 
     logger.info(`DELETE /grade - ${id}`);
   } catch (error) {
@@ -80,15 +108,18 @@ const remove = async (req, res) => {
 };
 
 const removeAll = async (req, res) => {
-  const id = req.params.id;
+  // const id = req.params.id;
 
   try {
+    const data = await Grade.remove({});
+
     res.send({
-      message: `Grades excluidos`,
+      message: `Todos os documentos da coleção foram apagados`,
     });
+
     logger.info(`DELETE /grade`);
   } catch (error) {
-    res.status(500).send({ message: 'Erro ao excluir todos as Grades' });
+    res.status(500).send({ message: 'Erro ao excluir todos os documentos' });
     logger.error(`DELETE /grade - ${JSON.stringify(error.message)}`);
   }
 };
