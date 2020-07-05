@@ -71,7 +71,13 @@ const update = async (req, res) => {
   const id = req.params.id;
 
   try {
-    res.send({ message: 'Grade atualizado com sucesso' });
+    const data = await Grade.findByIdAndUpdate({ _id: id }, req.body);
+
+    if (!data) {
+      res.send(`Podcast id ${id} nao encontrado`);
+    } else {
+      res.send({ message: 'Grade atualizado com sucesso' });
+    }
 
     logger.info(`PUT /grade - ${id} - ${JSON.stringify(req.body)}`);
   } catch (error) {
